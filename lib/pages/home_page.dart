@@ -10,43 +10,96 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final GlobalKey<FormState> _formKey = GlobalKey();
   var tasks = [
     Task(
+      id: 1,
       title: 'Title 1',
-      content: 'Content of task 1',
+      description: 'description of task 1',
       status: true,
       createdAt: DateTime.now(),
     ),
     Task(
+      id: 2,
       title: 'Title 2',
-      content: 'Content of task 2',
+      description: 'description of task 2',
       status: true,
       createdAt: DateTime.now(),
     ),
     Task(
+      id: 3,
       title: 'Title 3',
-      content: 'Content of task 3',
+      description: 'description of task 3',
       status: true,
       createdAt: DateTime.now(),
     ),
     Task(
+      id: 4,
       title: 'Title 4',
-      content: 'Content of task 4',
+      description: 'description of task 4',
       status: true,
       createdAt: DateTime.now(),
     ),
   ];
-
   createTask() {
     return showModalBottomSheet(
+      isScrollControlled: true,
       context: context,
       builder: (context) {
-        return SizedBox(
-          height: 400,
-          width: double.infinity,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [Text('Hello')],
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: SingleChildScrollView(
+            child: SizedBox(
+              width: double.infinity,
+              child: Form(
+                key: _formKey,
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Title'),
+                      TextFormField(
+                        autofocus: true,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          hintText: 'Title',
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      Text('Description'),
+                      TextFormField(
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          hintText: 'Type something',
+                        ),
+                        maxLines: 5,
+                      ),
+                      SizedBox(height: 20),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.amber[400],
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: Text('Create'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ),
         );
       },

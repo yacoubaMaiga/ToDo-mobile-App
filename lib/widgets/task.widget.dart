@@ -25,6 +25,7 @@ class _TaskWidgetState extends State<TaskWidget> {
           borderRadius: BorderRadius.circular(15),
           boxShadow: [
             BoxShadow(
+              // ignore: deprecated_member_use
               color: Colors.black.withOpacity(
                 0.1,
               ), // Couleur de l’ombre avec opacité
@@ -48,7 +49,7 @@ class _TaskWidgetState extends State<TaskWidget> {
               ],
             ),
             Text(
-              widget.task.content,
+              widget.task.description ?? '',
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
