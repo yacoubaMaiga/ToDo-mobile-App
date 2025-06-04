@@ -1,9 +1,9 @@
 class Task {
   int? id;
-  final String title;
-  final String? description;
-  final bool status;
-  final DateTime createdAt;
+  String title;
+  String? description;
+  bool status;
+  DateTime createdAt;
 
   Task({
     this.id,
@@ -16,13 +16,17 @@ class Task {
   // Fonction permettant de transformer mon objet en Json
   // pour pouvoir l'enregistrer dans la base
   Map<String, Object?> toMap() {
-    return {
-      'id': id,
+    final map = {
       'title': title,
       'description': description,
       'status': status ? 1 : 0,
       'createdAt': createdAt.toIso8601String(),
     };
+
+    if (id != null && id != 0) {
+      map['id'] = id;
+    }
+    return map;
   }
 
   // Fonction permettant de transformer les maps en objet
@@ -35,5 +39,9 @@ class Task {
       status: map['status'] == 1, // conversion inverse
       createdAt: DateTime.parse(map['createdAt']),
     );
+  }
+
+  static String taskToString(Task task) {
+    return 'Task{id: ${task.id}, title: ${task.title}, description: ${task.description}, status: ${task.status}, createdAt: ${task.createdAt}}';
   }
 }

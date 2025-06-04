@@ -13,7 +13,7 @@ class SqlHelper {
               id INTEGER PRIMARY KEY AUTOINCREMENT, 
               title TEXT NOT NULL,
               description TEXT,
-              status INTEGER NOT NULL,
+              status INTEGER NOT NULL DEFAULT 0,
               createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
             )''');
       },
@@ -21,14 +21,16 @@ class SqlHelper {
   }
 
   // Inserer une task
-  Future<void> insertTask(Task task) async {
+  Future<int> insertTask(Task task) async {
     final Database db = await openDB();
 
-    await db.insert(
+    final int id = await db.insert(
       'tasks',
       task.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+
+    return id;
   }
 
   // Afficher toutes les tasks
@@ -57,6 +59,11 @@ class SqlHelper {
   Future<void> deleteTask(int id) async {
     final db = await openDB();
     await db.delete('tasks', where: "id = ?", whereArgs: [id]);
+  }
+
+  Future<void> deleteAllTasks() async {
+    final db = await openDB();
+    await db.delete('tasks');
   }
 
   // update data

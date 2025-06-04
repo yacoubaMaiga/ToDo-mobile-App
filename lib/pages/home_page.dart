@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:todoapp/models/task.dart';
+import 'package:todoapp/utils/db_helper.dart';
 import 'package:todoapp/widgets/task.widget.dart';
 
 class HomePage extends StatefulWidget {
@@ -11,37 +12,32 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final GlobalKey<FormState> _formKey = GlobalKey();
-  var tasks = [
-    Task(
-      id: 1,
-      title: 'Title 1',
-      description: 'description of task 1',
-      status: true,
-      createdAt: DateTime.now(),
-    ),
-    Task(
-      id: 2,
-      title: 'Title 2',
-      description: 'description of task 2',
-      status: true,
-      createdAt: DateTime.now(),
-    ),
-    Task(
-      id: 3,
-      title: 'Title 3',
-      description: 'description of task 3',
-      status: true,
-      createdAt: DateTime.now(),
-    ),
-    Task(
-      id: 4,
-      title: 'Title 4',
-      description: 'description of task 4',
-      status: true,
-      createdAt: DateTime.now(),
-    ),
-  ];
-  createTask() {
+  SqlHelper sqlHelper = SqlHelper();
+  bool isLoading = true;
+  TextEditingController titleController = TextEditingController();
+  TextEditingController descriptionController = TextEditingController();
+  List<Task> tasks = [];
+
+  @override
+  void initState() {
+    super.initState();
+    loadTasks();
+  }
+
+  Future<void> loadTasks() async {
+    List<Task> allTasks = await sqlHelper.tasks();
+
+    setState(() {
+      isLoading = true;
+    });
+
+    setState(() {
+      tasks = allTasks;
+      isLoading = false;
+    });
+  }
+
+  ShowCreateTaskForm() {
     return showModalBottomSheet(
       isScrollControlled: true,
       context: context,
@@ -63,6 +59,7 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       Text('Title'),
                       TextFormField(
+                        controller: titleController,
                         autofocus: true,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(),
@@ -72,6 +69,7 @@ class _HomePageState extends State<HomePage> {
                       SizedBox(height: 20),
                       Text('Description'),
                       TextFormField(
+                        controller: descriptionController,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(),
                           hintText: 'Type something',
@@ -84,7 +82,7 @@ class _HomePageState extends State<HomePage> {
                         height: 50,
                         child: ElevatedButton(
                           onPressed: () {
-                            Navigator.pop(context);
+                            saveTask();
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.amber[400],
@@ -106,6 +104,31 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  saveTask() async {
+    Task task = Task(
+      title: '',
+      description: '',
+      status: false,
+      createdAt: DateTime.now(),
+    );
+
+    task.title = titleController.text;
+    task.description = descriptionController.text;
+
+    // INSERT et récupérer l'id
+    int insertedId = await sqlHelper.insertTask(task);
+
+    // mettre à jour l'objet
+    task.id = insertedId;
+
+    Navigator.pop(context);
+
+    loadTasks();
+
+    titleController.clear();
+    descriptionController.clear();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -113,8 +136,18 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text('ToDo Now'),
         backgroundColor: Colors.amber[400],
+        actions: [
+          IconButton(
+            icon: Icon(Icons.delete_forever),
+            onPressed: () async {
+              await sqlHelper.deleteAllTasks();
+              await loadTasks(); // recharge après suppression
+            },
+          ),
+        ],
       ),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(padding: EdgeInsets.only(top: 10, bottom: 10)),
           Padding(
@@ -124,20 +157,31 @@ class _HomePageState extends State<HomePage> {
               top: 5,
               bottom: 10,
             ),
-            child: Container(
-              width: double.infinity,
-              height: 30,
-              decoration: BoxDecoration(color: Colors.lightBlue),
-              child: Row(),
-            ),
+            // child: Container(
+            //   width: double.infinity,
+            //   height: 30,
+            //   decoration: BoxDecoration(color: Colors.lightBlue),
+            //   child: Row(),
+            // ),
+            child: Text('Task of day', style: TextStyle(fontSize: 25)),
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount: tasks.length,
-              itemBuilder: (context, index) {
-                return TaskWidget(task: tasks[index]);
-              },
-            ),
+            child:
+                isLoading
+                    ? Center(child: CircularProgressIndicator())
+                    : tasks.isEmpty
+                    ? Center(
+                      child: Text(
+                        "No task available.",
+                        style: TextStyle(fontSize: 30),
+                      ),
+                    )
+                    : ListView.builder(
+                      itemCount: tasks.length,
+                      itemBuilder: (context, index) {
+                        return TaskWidget(task: tasks[index]);
+                      },
+                    ),
           ),
         ],
       ),
@@ -155,7 +199,7 @@ class _HomePageState extends State<HomePage> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.amber[400],
         onPressed: () {
-          createTask();
+          ShowCreateTaskForm();
         },
         child: Icon(Icons.add),
       ),

@@ -13,6 +13,8 @@ class TaskWidget extends StatefulWidget {
 }
 
 class _TaskWidgetState extends State<TaskWidget> {
+  bool isChecked = false;
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -48,10 +50,13 @@ class _TaskWidgetState extends State<TaskWidget> {
                 Icon(Icons.edit),
               ],
             ),
-            Text(
-              widget.task.description ?? '',
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.8,
+              child: Text(
+                widget.task.description ?? '',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
             SizedBox(height: 15),
 
@@ -66,7 +71,15 @@ class _TaskWidgetState extends State<TaskWidget> {
                 Row(
                   children: [
                     Text('Mark as complete'),
-                    Checkbox(value: false, onChanged: (value) {}),
+                    Checkbox(
+                      value: isChecked,
+                      onChanged: (value) {
+                        setState(() {
+                          isChecked = !isChecked;
+                        });
+                      },
+                      activeColor: Colors.green,
+                    ),
                   ],
                 ),
               ],
