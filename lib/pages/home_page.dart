@@ -17,22 +17,35 @@ class _HomePageState extends State<HomePage> {
   TextEditingController titleController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   List<Task> tasks = [];
+  List<Task> uncompletedTasks = [];
 
   @override
   void initState() {
     super.initState();
     loadTasks();
+    loadUncompletedTasks();
   }
 
   Future<void> loadTasks() async {
     List<Task> allTasks = await sqlHelper.tasks();
-
     setState(() {
       isLoading = true;
     });
 
     setState(() {
       tasks = allTasks;
+      isLoading = false;
+    });
+  }
+
+  Future<void> loadUncompletedTasks() async {
+    List<Task> allUncompletedTasks = await sqlHelper.getUncompletedTasks();
+    setState(() {
+      isLoading = true;
+    });
+
+    setState(() {
+      uncompletedTasks = allUncompletedTasks;
       isLoading = false;
     });
   }
@@ -163,17 +176,17 @@ class _HomePageState extends State<HomePage> {
             //   decoration: BoxDecoration(color: Colors.lightBlue),
             //   child: Row(),
             // ),
-            child: Text('Task of day', style: TextStyle(fontSize: 25)),
+            child: Text('Uncompleted Tasks', style: TextStyle(fontSize: 25)),
           ),
           Expanded(
             child:
                 isLoading
                     ? Center(child: CircularProgressIndicator())
-                    : tasks.isEmpty
+                    : uncompletedTasks.isEmpty
                     ? Center(
                       child: Text(
-                        "No task available.",
-                        style: TextStyle(fontSize: 30),
+                        "All tasks has been completed.",
+                        style: TextStyle(fontSize: 15, color: Colors.grey),
                       ),
                     )
                     : ListView.builder(

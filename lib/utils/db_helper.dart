@@ -77,4 +77,27 @@ class SqlHelper {
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
+
+  // Update task status
+  Future<void> updateTaskStatus(Task task, bool status) async {
+    final db = await openDB();
+    await db.update(
+      'tasks',
+      {'status': status ? 1 : 0},
+      where: "id = ?",
+      whereArgs: [task.id],
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  // Get task uncompleted
+  Future<List<Task>> getUncompletedTasks() async {
+    final db = await openDB();
+    final List<Map<String, Object?>> taskMaps = await db.query(
+      'tasks',
+      where: "status = ?",
+      whereArgs: [0],
+    );
+    return taskMaps.map((e) => Task.fromMap(e)).toList();
+  }
 }

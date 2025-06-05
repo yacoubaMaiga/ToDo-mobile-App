@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:todoapp/pages/home_page.dart';
 import 'package:todoapp/pages/login.dart';
 import 'package:todoapp/pages/splash_screen.dart';
+import 'package:todoapp/pages/task_details_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
